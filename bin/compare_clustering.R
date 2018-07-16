@@ -2,8 +2,10 @@
 library(clusterCrit)
 source("./source/functions.R")
 
-load("./results/soms_sp_10x10.Rdata")
-load("./data/owda_for_som.rdata")
+load("./results/soms_sp_6x6.Rdata") #created in build maps
+load("./results/soms_sp_8x8.Rdata") #created in build maps
+load("./results/soms_sp_10x10.Rdata") #created in build maps
+load("./data/owda_for_som.rdata")  #created in import_data
 
 x <- som_sp_10x10$codes[[1]]
 

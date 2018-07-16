@@ -2,9 +2,9 @@
 
 source("./source/functions.R")
 source("./source/graphics.R")
-load("./results/soms_sp_6x6.Rdata")
-load("./results/soms_sp_8x8.Rdata")
-load("./results/soms_sp_10x10.Rdata")
+load("./results/soms_sp_6x6.Rdata") #created in build maps
+load("./results/soms_sp_8x8.Rdata") #created in build maps
+load("./results/soms_sp_10x10.Rdata") #created in build maps
 
 nclusters = 17
 

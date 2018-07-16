@@ -1,11 +1,9 @@
 #Create the SOMs
 
 source("./source/functions.R")
-load("./data/owda_for_som.rdata")
+load("./data/owda_for_som.rdata") #created in import_data
 
 #Spatial domain
-
-
 som_sp_6x6 <- som(X = owda_for_som, 
                     grid = somgrid(6, 6, "hexagonal"), #dimensions
                     alpha = c(0.01, 0.001), 

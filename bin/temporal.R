@@ -2,8 +2,8 @@
 
 source("./source/functions.R")
 source("./source/graphics.R")
-load("./results/soms_tm_10x10.Rdata")
-load("./data/owda_for_som.rdata")
+load("./results/soms_tm_10x10.Rdata") #created in build maps
+load("./data/owda_for_som.rdata") #created in import_data
 
 plot.other.years.in.node(som_tm_10x10_map, 1921, "scPDSI")
 plot.other.years.in.node(som_tm_10x10_map, 2003, "scPDSI")
