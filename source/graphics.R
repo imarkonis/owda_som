@@ -1,16 +1,11 @@
-library(gridExtra)
-library(ggplot2)
-library(latticeExtra)
-library(raster)
-library(rasterVis)
-library(rgdal)
-library(ape)
+library(gridExtra); library(ggplot2); library(latticeExtra); library(raster); library(rasterVis)
+library(rgdal); library(ggpubr)
 
 world.shp = maptools::readShapeLines("../owda/ne_50m_admin_0_countries_lakes.shp", proj4string=CRS('+proj=longlat +ellps=WGS84'))
 
-rgb.palette.Qualitative.1 = colorRampPalette(c("#4575b4", "#78c679", "#f46d43", "#74add1", "#807dba", "#fee090", "#d9f0a3", "#d73027", "#abd9e9", "#fdae61", "#fa9fb5", "#ffed6f"), space = "rgb")
-rgb.palette.Qualitative.2 = colorRampPalette(c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"))
-rgb.palette.Qualitative.3 = colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffed6f", "#b15928"))
+rgb.palette.Qualitative.pale = colorRampPalette(c("#4575b4", "#78c679", "#f46d43", "#74add1", "#807dba", "#fee090", "#d9f0a3", "#d73027", "#abd9e9", "#fdae61", "#fa9fb5", "#ffed6f"), space = "rgb")
+rgb.palette.Qualitative.bright = colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffed6f", "#b15928"))
+#rgb.palette.Qualitative.mixed = colorRampPalette(c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"))
 my.drought.col = colorRampPalette(c('#8c510a','#d8b365','#f6e8c3','#f5f5f5','skyblue1','skyblue3','skyblue4'), interpolate = "spline", space = "rgb")
 
 
@@ -26,7 +21,7 @@ plot.som.as.network <- function(som.classifications, nclusters, cor.thres){
 
 plot.som.summary <- function(nodes_in_space, fname, ...){
   nnodes = max(nodes_in_space$node)
-  my.col=rgb.palette.Qualitative.3(nnodes)
+  my.col=rgb.palette.Qualitative.bright(nnodes)
   
   png(file=paste0(fname, "_nodes.png"), width=7.5, height=7.5, res=400, units="in", type="cairo", ...) 
   plot(lat~lon, data = nodes_in_space, pch= 15, col = my.col[node])
@@ -50,7 +45,7 @@ plot.som.summary <- function(nodes_in_space, fname, ...){
 
 plot.all.som.clusters <- function(nodes_in_space, fname, nclusters, ...){
   nnodes = max(nodes_in_space$node)
-  my.col=sample(rgb.palette.Qualitative.3(nnodes), nnodes, replace = F)
+  my.col=sample(rgb.palette.Qualitative.bright(nnodes), nnodes, replace = F)
   
   png(file=paste0(fname, "_clusters.png"), width=7.5, height=7.5, res=400, units="in", type="cairo", ...) 
   par(mfrow=c(4,4), mar=c(2,2,2,2), ps=12, bg="white", mgp = c(3, 0.2, 0))
@@ -147,7 +142,7 @@ plot.gsoms.in.subperiods <- function(nodes.in.time, fname, clusters){
     print(plot(lat~lon, 
                data = nodes.in.time[[i]], 
                pch = 15, 
-               col = rgb.palette.Qualitative.3(clusters)[as.matrix(aa[[i]])]))
+               col = rgb.palette.Qualitative.bright(clusters)[as.matrix(aa[[i]])]))
     maps::map("world", add=TRUE)
   }
   dev.off()

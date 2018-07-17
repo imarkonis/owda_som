@@ -1,5 +1,6 @@
 #Explore the classification efficiency
 library(clusterCrit)
+library(graphics)
 source("./source/functions.R")
 
 load("./results/soms_sp_6x6.Rdata") #created in build maps
@@ -61,15 +62,24 @@ sd_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31
                                data.table(som = as.factor("8x8"), clusters = 2:31, sd = som_sd(owda_sp_8x8, nclusters = 31)),
                                data.table(som = as.factor("10x10"), clusters = 2:31, sd = som_sd(owda_sp_10x10, nclusters = 31))))
 
-ggplot(cor_som_sp, aes(clusters, max_cor, col = som)) +
+g1 <- ggplot(cor_som_sp, aes(clusters, max_cor, color = som)) +
   geom_point() +
   geom_smooth(span = 0.3, se = F) +
-  labs(x = "Number of clusters", y = "Maximum Correlation") +
+  labs(x = "Number of clusters", y = "Maximum Correlation") + 
+  scale_color_manual(values = rgb.palette.Qualitative.bright(13)[c(5, 8, 7)]) + 
   theme_bw() 
 
-ggplot(sd_som_sp, aes(clusters, sd, col = som)) +
+g2 <- ggplot(sd_som_sp, aes(clusters, sd, col = som)) +
   geom_point() +
   geom_smooth(span = 0.3, se = F) +
   labs(x = "Number of clusters", y = "Stand. Dev.") +
+  scale_color_manual(values = rgb.palette.Qualitative.bright(13)[c(5, 8, 7)]) + 
   theme_bw() 
 
+gg_all <- ggarrange(g1 + rremove("legend"), 
+                    g2 + theme(legend.position = c(0.81, 0.78), 
+                              legend.background = element_rect(fill = NA)),  
+                    labels = c("a", "b"),
+                    nrow = 1, ncol = 2)
+
+ggsave("./results/figs/clustering_comp.png", gg_all, units = "cm", width = 20, height = 10)
