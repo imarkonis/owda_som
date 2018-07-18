@@ -23,38 +23,38 @@ plot.som.summary <- function(nodes_in_space, fname, ...){
   nnodes = max(nodes_in_space$node)
   my.col=rgb.palette.Qualitative.bright(nnodes)
   
-  png(file=paste0(fname, "_nodes.png"), width=7.5, height=7.5, res=400, units="in", type="cairo", ...) 
-  plot(lat~lon, data = nodes_in_space, pch= 15, col = my.col[node])
-  maps::map("world", add=TRUE)
+  png(file = paste0(fname, "_nodes.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
+  plot(lat ~ lon, data = nodes_in_space, pch = 15, col = my.col[node])
+  maps::map("world", add = TRUE)
   dev.off()
   
-  png(file = paste0(fname, "_summary.png"), width=7.5, height=7.5, res=400, units="in", type="cairo", ...) 
+  png(file = paste0(fname, "_summary.png"), width = 7.5, heigh = 7.5, res = 400, units = "in", type = "cairo", ...) 
   par(mfrow = c(2, 2), 
       mar = c(2, 2, 2, 2), 
-      ps=12, bg="white", mgp = c(3, 0.2, 0))
-  plot(node.lat~node.lon, data = nodes_in_space, cex = 2*distance, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Distance")
-  maps::map("world", add=TRUE)
-  plot(node.lat~node.lon, data = nodes_in_space, cex = node.counts/20, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Counts")
-  maps::map("world", add=TRUE)
-  plot(node.lat~node.lon, data = nodes_in_space, cex = node.sd.lat, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Lat sd")
-  maps::map("world", add=TRUE)
-  plot(node.lat~node.lon, data = nodes_in_space, cex = node.sd.lon, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Lon sd")
-  maps::map("world", add=TRUE)
+      ps = 12, bg = "white", mgp = c(3, 0.2, 0))
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = 2*distance, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Distance")
+  maps::map("world", add = TRUE)
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.counts/20, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Counts")
+  maps::map("world", add = TRUE)
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.sd.lat, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Lat sd")
+  maps::map("world", add = TRUE)
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.sd.lon, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Lon sd")
+  maps::map("world", add = TRUE)
   dev.off()
 }
 
 plot.all.som.clusters <- function(nodes_in_space, fname, nclusters, ...){
   nnodes = max(nodes_in_space$node)
-  my.col=sample(rgb.palette.Qualitative.bright(nnodes), nnodes, replace = F)
+  my.col = sample(rgb.palette.Qualitative.bright(nnodes), nnodes, replace = F)
   
-  png(file=paste0(fname, "_clusters.png"), width=7.5, height=7.5, res=400, units="in", type="cairo", ...) 
-  par(mfrow=c(4,4), mar=c(2,2,2,2), ps=12, bg="white", mgp = c(3, 0.2, 0))
+  png(file = paste0(fname, "_clusters.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
+  par(mfrow = c(4, 4), mar=c(2, 2, 2, 2), ps = 12, bg="white", mgp = c(3, 0.2, 0))
   for(i in 2:(nclusters)){
-    print(plot(lat~lon, 
+    print(plot(lat ~ lon, 
                data = nodes_in_space, 
                pch = 15, 
-               col = my.col[as.matrix(nodes_in_space)[,9+i]]))
-    maps::map("world", add=TRUE)
+               col = my.col[as.matrix(nodes_in_space)[ ,9 + i]]))
+    maps::map("world", add = TRUE)
   }
   dev.off()
 }

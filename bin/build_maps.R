@@ -8,25 +8,25 @@ som_sp_6x6 <- som(X = owda_for_som,
                     grid = somgrid(6, 6, "hexagonal"), #dimensions
                     alpha = c(0.01, 0.001), 
                     keep.data = TRUE, 
-                    rlen = 1000) #number of iterations
+                    rlen = 100000) #number of iterations: USE 1000, because it takes time
 som_sp_6x6_map <- put.som.in.space(som_sp_6x6, owda_coords)
 save(som_sp_6x6, som_sp_6x6_map, file = "results/soms_sp_6x6.Rdata") 
-
-som_sp_8x8 <- som(X = owda_for_som, 
-                    grid = somgrid(8, 8, "hexagonal"), #dimensions
-                    alpha = c(0.01, 0.001), 
-                    keep.data = TRUE, 
-                    rlen = 1000) #number of iterations
-som_sp_8x8_map <- put.som.in.space(som_sp_8x8, owda_coords)
-save(som_sp_8x8, som_sp_8x8_map, file = "results/soms_sp_8x8.Rdata")
 
 som_sp_10x10 <- som(X = owda_for_som, 
                     grid = somgrid(10, 10, "hexagonal"), #dimensions
                     alpha = c(0.01, 0.001), 
                     keep.data = TRUE, 
-                    rlen = 10000) #number of iterations
+                    rlen = 10000) #number of iterations: USE 100, because it takes a lot of time
 som_sp_10x10_map <- put.som.in.space(som_sp_10x10, owda_coords)
 save(som_sp_10x10, som_sp_10x10_map, file = "results/soms_sp_10x10.Rdata") 
+
+som_sp_20x20 <- som(X = owda_for_som, 
+                    grid = somgrid(20, 20, "hexagonal"), #dimensions
+                    alpha = c(0.01, 0.001), 
+                    keep.data = TRUE, 
+                    rlen = 1000) #number of iterations: USE 100, because it takes a lot of time
+som_sp_20x20_map <- put.som.in.space(som_sp_20x20, owda_coords)
+save(som_sp_20x20, som_sp_20x20_map, file = "results/soms_sp_20x20.Rdata") 
 
 #Temporal domain
 owda_for_som_tm <- cbind(992:2012, t(owda_for_som))
