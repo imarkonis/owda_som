@@ -3,11 +3,25 @@ library(rgdal); library(ggpubr)
 
 world.shp = maptools::readShapeLines("../owda/ne_50m_admin_0_countries_lakes.shp", proj4string=CRS('+proj=longlat +ellps=WGS84'))
 
-rgb.palette.Qualitative.pale = colorRampPalette(c("#4575b4", "#78c679", "#f46d43", "#74add1", "#807dba", "#fee090", "#d9f0a3", "#d73027", "#abd9e9", "#fdae61", "#fa9fb5", "#ffed6f"), space = "rgb")
-rgb.palette.Qualitative.bright = colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffed6f", "#b15928"))
-#rgb.palette.Qualitative.mixed = colorRampPalette(c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"))
-my.drought.col = colorRampPalette(c('#8c510a','#d8b365','#f6e8c3','#f5f5f5','skyblue1','skyblue3','skyblue4'), interpolate = "spline", space = "rgb")
+#### Colors
 
+colset_bright <- c("#6a3d9a", "#375E97", "#008DCB", "#31A9B8", 
+                   "#486B00", "#258039", "#A2C523", "#FFCE38", 
+                   "#F0810F", "#FA6775", "#D61800", "#9B4F0F")
+colset_bright_qual <- colset_bright[c(11, 2, 6, 8, 3, 7, 9, 1, 5, 12, 4, 10)]
+palette_bright <- colorRampPalette(colset_bright)
+palette_bright_qual <- colorRampPalette(colset_bright_qual)
+
+colset_mid <- c( "#4D648D", "#337BAE", "#97B8C2",  "#739F3D", "#ACBD78",  
+                   "#F4CC70", "#EBB582",  "#BF9A77",
+                   "#E38B75", "#CE5A57",  "#D24136", "#785A46" )
+colset_mid_qual <- colset_mid[c(11, 2, 4, 6,  1, 8, 10, 5, 7, 3, 9, 12)]
+palette_mid <- colorRampPalette(colset_mid)
+palette_mid_qual <- colorRampPalette(colset_mid_qual)
+
+drought_palette <- colorRampPalette(c('#8c510a','#d8b365','#f6e8c3','#f5f5f5','skyblue1','skyblue3','skyblue4'), 
+                                    interpolate = "spline", space = "rgb")
+#### Functions
 
 plot.som.as.network <- function(som.classifications, nclusters, cor.thres){
   my.som = get.classif(som.classifications, nclusters)
@@ -16,12 +30,13 @@ plot.som.as.network <- function(som.classifications, nclusters, cor.thres){
   som.cors.above.thres = get.clusters.above.thres(som.summary, som.clusters.cor.mat, cor.thres)
   plot(lat~lon, data = som.summary, cex = connections + 1, pch = 16, col = cols)
   maps::map("world", add = TRUE)
-  segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2)
+  segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, 
+           som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2)
 }
 
 plot.som.summary <- function(nodes_in_space, fname, ...){
   nnodes = max(nodes_in_space$node)
-  my.col=rgb.palette.Qualitative.bright(nnodes)
+  my.col = palette_mid_qual(nnodes)
   
   png(file = paste0(fname, "_nodes.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
   plot(lat ~ lon, data = nodes_in_space, pch = 15, col = my.col[node])
@@ -45,7 +60,7 @@ plot.som.summary <- function(nodes_in_space, fname, ...){
 
 plot.all.som.clusters <- function(nodes_in_space, fname, nclusters, ...){
   nnodes = max(nodes_in_space$node)
-  my.col = sample(rgb.palette.Qualitative.bright(nnodes), nnodes, replace = F)
+  my.col = c(colset_mid_qual, colset_bright_qual)
   
   png(file = paste0(fname, "_clusters.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
   par(mfrow = c(4, 4), mar=c(2, 2, 2, 2), ps = 12, bg="white", mgp = c(3, 0.2, 0))
@@ -115,7 +130,7 @@ plot.owda.year = function(yr, variable){
   oo = max(abs(bb$z), na.rm = T)
   col.seq = seq(-oo,oo,0.1)
   levelplot(dd, xlab.top = yr, xlab="", ylab="", margin=F, scales = list(y = list(tck=c(-1, -1)), x = list(tck=c(-1, -1))), main = as.character(yr),
-            col.regions=my.drought.col, cuts=600, at = col.seq)  + latticeExtra::layer(sp.lines(world.shp, col = "grey30",lwd=0.5))   
+            col.regions=drought_palette, cuts=600, at = col.seq)  + latticeExtra::layer(sp.lines(world.shp, col = "grey30",lwd=0.5))   
 }
 
 plot.owda.many.years = function(yr, variable, col.seq = seq(-6, 6, 0.1)){
@@ -123,7 +138,7 @@ plot.owda.many.years = function(yr, variable, col.seq = seq(-6, 6, 0.1)){
   dd = rasterFromXYZ(bb, crs = CRS('+proj=longlat +datum=WGS84'))
   levelplot(dd, xlab.top = yr, xlab = "", ylab = "", margin = F, 
             scales = list(y = list(tck = c(-1, -1)), x = list(tck = c(-1, -1))), main = as.character(yr),
-            col.regions=my.drought.col, cuts = 600, at = col.seq) + 
+            col.regions=drought_palette, cuts = 600, at = col.seq) + 
     latticeExtra::layer(sp.lines(world.shp, col = "grey30", lwd = 0.5))   
 }
 
@@ -142,7 +157,7 @@ plot.gsoms.in.subperiods <- function(nodes.in.time, fname, clusters){
     print(plot(lat~lon, 
                data = nodes.in.time[[i]], 
                pch = 15, 
-               col = rgb.palette.Qualitative.bright(clusters)[as.matrix(aa[[i]])]))
+               col = colset_mid_qual(clusters)[as.matrix(aa[[i]])]))
     maps::map("world", add=TRUE)
   }
   dev.off()

@@ -5,7 +5,7 @@ source("./source/functions.R")
 
 load("./results/soms_sp_6x6.Rdata") #created in build maps
 load("./results/soms_sp_10x10.Rdata") #created in build maps
-load("./results/soms_sp_20x20.Rdata") #created in build maps
+load("./results/soms_sp_14x14.Rdata") #created in build maps
 load("./data/owda_for_som.rdata")  #created in import_data
 
 x <- som_sp_10x10$codes[[1]]
@@ -49,33 +49,31 @@ som_sp_10x10_map_31 <- create.som.clusters(som_sp_10x10, som_sp_10x10_map, 31)
 owda_sp_10x10 <- make.classif(som_sp_10x10_map_31, owda_raw, 31)
 save(som_sp_10x10, som_sp_10x10_map, som_sp_10x10_map_17, owda_sp_10x10, file = "results/soms_sp_10x10.Rdata")
 
-som_sp_20x20_map_31 <- create.som.clusters(som_sp_20x20, som_sp_20x20_map, 31)
-owda_sp_20x20 <- make.classif(som_sp_20x20_map_31, owda_raw, 31)
-save(som_sp_20x20, som_sp_20x20_map, som_sp_20x20_map_17, owda_sp_20x20, file = "results/soms_sp_20x20.Rdata")
+som_sp_14x14_map_31 <- create.som.clusters(som_sp_14x14, som_sp_14x14_map, 31)
+owda_sp_14x14 <- make.classif(som_sp_14x14_map_31, owda_raw, 31)
+save(som_sp_14x14, som_sp_14x14_map, som_sp_14x14_map_17, owda_sp_14x14, file = "results/soms_sp_14x14.Rdata")
 
 #Examine maximum corellation between clusters and variance: Make it a single function
 cor_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31, max_cor = som_cor(owda_sp_6x6)), 
                                data.table(som = as.factor("10x10"), clusters = 2:31, max_cor = som_cor(owda_sp_10x10)),
-                               data.table(som = as.factor("20x20"), clusters = 2:31, max_cor = som_cor(owda_sp_20x20))))
-
+                               data.table(som = as.factor("14x14"), clusters = 2:31, max_cor = som_cor(owda_sp_14x14))))
 
 sd_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31, sd = som_sd(owda_sp_6x6, nclusters = 31)), 
                               data.table(som = as.factor("10x10"), clusters = 2:31, sd = som_sd(owda_sp_10x10, nclusters = 31)),
-                               data.table(som = as.factor("20x20"), clusters = 2:31, sd = som_sd(owda_sp_20x20, nclusters = 31))))
-
+                               data.table(som = as.factor("14x14"), clusters = 2:31, sd = som_sd(owda_sp_14x14, nclusters = 31))))
 
 g2 <- ggplot(cor_som_sp, aes(clusters, max_cor, color = som)) +
   geom_point() +
   geom_smooth(span = 0.3, se = F) +
   labs(x = "Number of clusters", y = "Maximum Correlation") + 
-  scale_color_manual(values = rgb.palette.Qualitative.bright(13)[c(5, 8, 7)]) + 
+  scale_color_manual(values = colset_light[c(8, 11, 4)]) + 
   theme_bw() 
 
 g1 <- ggplot(sd_som_sp, aes(clusters, sd, col = som)) +
   geom_point() +
   geom_smooth(span = 0.3, se = F) +
   labs(x = "Number of clusters", y = "Stand. Dev.") +
-  scale_color_manual(values = rgb.palette.Qualitative.bright(13)[c(5, 8, 7)]) + 
+  scale_color_manual(values = colset_light[c(8, 11, 4)]) + 
   theme_bw() 
 
 gg_all <- ggarrange(g1 + rremove("legend"), 
