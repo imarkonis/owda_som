@@ -15,7 +15,7 @@ for(v in 1:(ncol(owda_for_som)-1000)){
        palette.name = coolBlueHotRed)
 }
 
-groups = 6
+groups = 5
 som.hc <- cutree(hclust(dist(som_sp_10x10$codes[[1]])), groups)
 plot(som_sp_10x10, type = "mapping", main = "Cluster Map", bgcol = colset_light_qual[som.hc], border = NA)
 add.cluster.boundaries(som_sp_10x10, som.hc)

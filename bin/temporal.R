@@ -20,3 +20,12 @@ plot(as.phylo(x), type="fan")
 dend <- dend %>% 
   color_branches(k=4) %>% 
   color_labels
+
+#Linking space & time
+period_length <- 100
+sub_periods <- seq(9, 1009, period_length)
+som_6x6_100yr <- soms.period(owda_for_som, sub_periods, som_iter = 2000)
+names(som_6x6_100yr) <- seq(1000, 1900, period_length)
+
+som_6x6_100yr_map_9 <- put.soms.period.in.space(som_6x6_100yr, owda_coords, 10)
+plot.soms.in.subperiods(som_6x6_100yr_map_9, "test", 5)

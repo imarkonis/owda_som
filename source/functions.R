@@ -133,7 +133,7 @@ make.classification.summary <- function(selected.som){
   selected.som.summary = merge(no.connected.clusters, selected.som.summary, by.x = "cluster.1", by.y = "cluster", all.y = T)
   selected.som.summary$N[is.na(selected.som.summary$N)] = 0
   names(selected.som.summary)[1:2] = c("cluster", "connections")
-  selected.som.summary[,cols := rgb.palette.Qualitative.1(nrow(selected.som.summary))[cluster]] 
+  selected.som.summary[, cols := colset_mid_qual[nrow(selected.som.summary)][cluster]] 
   return(selected.som.summary)
 }
 
@@ -144,13 +144,43 @@ get.other.years.in.node <- function(nodes.in.time, yr){
   return(years.in.node)
 }
 
-som_cor <- function(owda_clusters){
+som.cor <- function(owda_clusters){
   cluster_cor <- lapply(owda_clusters, make.som.cor.mat)
   cluster_cor <- lapply(cluster_cor, function(y) apply(y, 1, function(x) max(x[x < 1])))
   cluster_cor <- sapply(cluster_cor, mean)
   return(cluster_cor)
 }
 
-som_sd <- function(owda_clusters, nclusters){
+som.sd <- function(owda_clusters, nclusters){
   as.numeric(rapply(owda_clusters, mean)[seq(6, 6 * (nclusters - 1), 6)])
 } 
+
+soms.period <- function(data_set, 
+                        periods, 
+                        som_grid = somgrid(6, 6, "hexagonal"), 
+                        som_iter = 1000, ...){
+  
+  no_cores <- as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) - 1
+  if(no_cores < 1 | is.na(no_cores))(no_cores <- 1)
+  cluster = makeCluster(no_cores, type = "SOCK")
+  registerDoSNOW(cluster)
+  
+  soms_in_period <- foreach(i = 1:(length(periods) - 1)) %dopar% {
+    kohonen::som(X = data_set[, periods[i]:periods[i + 1]],
+                 grid = som_grid, #dimensions
+                 alpha = c(0.01, 0.001), 
+                 keep.data = TRUE, 
+                 rlen = som_iter) 
+  }
+  return(soms_in_period)
+}
+put.soms.period.in.space <- function(soms_in_periods, id_cords, nclusters){
+  soms_in_space = list()
+  for(i in 1:length(soms_in_periods)){
+    soms_in_space[[i]] <- put.som.in.space(soms_in_periods[[i]], id_cords)
+    soms_in_space[[i]] <- create.som.clusters(soms_in_periods[[i]], soms_in_space[[i]], nclusters)
+  }
+  names(soms_in_space) <- names(soms_in_periods)
+  return(soms_in_space)
+}
+

@@ -54,13 +54,13 @@ owda_sp_14x14 <- make.classif(som_sp_14x14_map_31, owda_raw, 31)
 save(som_sp_14x14, som_sp_14x14_map, som_sp_14x14_map_17, owda_sp_14x14, file = "results/soms_sp_14x14.Rdata")
 
 #Examine maximum corellation between clusters and variance: Make it a single function
-cor_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31, max_cor = som_cor(owda_sp_6x6)), 
-                               data.table(som = as.factor("10x10"), clusters = 2:31, max_cor = som_cor(owda_sp_10x10)),
-                               data.table(som = as.factor("14x14"), clusters = 2:31, max_cor = som_cor(owda_sp_14x14))))
+cor_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31, max_cor = som.cor(owda_sp_6x6)), 
+                               data.table(som = as.factor("10x10"), clusters = 2:31, max_cor = som.cor(owda_sp_10x10)),
+                               data.table(som = as.factor("14x14"), clusters = 2:31, max_cor = som.cor(owda_sp_14x14))))
 
-sd_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31, sd = som_sd(owda_sp_6x6, nclusters = 31)), 
-                              data.table(som = as.factor("10x10"), clusters = 2:31, sd = som_sd(owda_sp_10x10, nclusters = 31)),
-                               data.table(som = as.factor("14x14"), clusters = 2:31, sd = som_sd(owda_sp_14x14, nclusters = 31))))
+sd_som_sp <- data.table(rbind(data.table(som = as.factor("6x6"), clusters = 2:31, sd = som.sd(owda_sp_6x6, nclusters = 31)), 
+                              data.table(som = as.factor("10x10"), clusters = 2:31, sd = som.sd(owda_sp_10x10, nclusters = 31)),
+                               data.table(som = as.factor("14x14"), clusters = 2:31, sd = som.sd(owda_sp_14x14, nclusters = 31))))
 
 g2 <- ggplot(cor_som_sp, aes(clusters, max_cor, color = som)) +
   geom_point() +

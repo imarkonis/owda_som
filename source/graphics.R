@@ -63,7 +63,7 @@ plot.all.som.clusters <- function(nodes_in_space, fname, nclusters, ...){
   my.col = c(colset_mid_qual, colset_bright_qual)
   
   png(file = paste0(fname, "_clusters.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
-  par(mfrow = c(4, 4), mar=c(2, 2, 2, 2), ps = 12, bg="white", mgp = c(3, 0.2, 0))
+  par(mfrow = c(4, 4), mar = c(2, 2, 2, 2), ps = 12, bg = "white", mgp = c(3, 0.2, 0))
   for(i in 2:(nclusters)){
     print(plot(lat ~ lon, 
                data = nodes_in_space, 
@@ -142,23 +142,24 @@ plot.owda.many.years = function(yr, variable, col.seq = seq(-6, 6, 0.1)){
     latticeExtra::layer(sp.lines(world.shp, col = "grey30", lwd = 0.5))   
 }
 
-plot.gsoms.in.subperiods <- function(nodes.in.time, fname, clusters){ 
-  subperiods = length(nodes.in.time)
-  
-  png(file=paste0(fname, "_clusters_in_time.png"), 
-      width=7.5, height=7.5, res=400, 
-      units="in", type="cairo")
-  par(mfrow=c(4,4), mar=c(2,2,2,2), 
-      ps=12, bg="white", 
+plot.soms.in.subperiods <- function(nodes_in_time, fname, clusters){ 
+  subperiods <- length(nodes_in_time)
+  subperiods_diff <- as.numeric(names(nodes_in_time)[2]) - as.numeric(names(nodes_in_time)[1]) # in order to plot figure title
+  png(file = paste0(fname, "_clusters_in_time.png"), 
+      width = 7.5, height = 10, res = 400, 
+      units = "in", type = "cairo")
+  par(mfrow = c(4, 3), mar = c(2, 2, 2, 2), 
+      ps = 12, bg = "white", 
       mgp = c(3, 0.2, 0))
   
   for(i in 1:subperiods){
-    aa = lapply(nodes.in.time, `[[`, 9+clusters)
-    print(plot(lat~lon, 
-               data = nodes.in.time[[i]], 
+    aa <- lapply(nodes_in_time, `[[`, 9 + clusters)
+    print(plot(lat ~ lon, 
+               data = nodes_in_time[[i]],
+               main = paste(names(nodes_in_time)[i], "-", as.numeric(names(nodes_in_time)[i]) + subperiods_diff),
                pch = 15, 
-               col = colset_mid_qual(clusters)[as.matrix(aa[[i]])]))
-    maps::map("world", add=TRUE)
+               col = colset_mid_qual[as.matrix(aa[[i]])]))
+    maps::map("world", add = TRUE)
   }
   dev.off()
 }
