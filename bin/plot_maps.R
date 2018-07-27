@@ -25,7 +25,7 @@ save(som_sp_14x14, som_sp_14x14_map, som_sp_14x14_map_17, file = "results/soms_s
 
 ### Comparison of different SOM structure for same number of clusters
 nclusters <- 5
-my_col_1 <- colset_mid_qual[c(1:4, 6)]
+my_col_1 <- colset_light_qual
 
 png(file = paste0("./results/figs/compare_soms_", nclusters, ".png"), width = 7.5, height = 2.5, res = 400, units = "in", type = "cairo") 
 par(mfrow = c(1, 3), mar = c(2, 2, 2, 2), ps = 12, bg = "white", mgp = c(3, 0.2, 0))
@@ -52,7 +52,7 @@ maps::map("world", add = TRUE)
 dev.off()
 
 nclusters <- 9
-my_col_1 <- colset_mid_qual[c(1:4, 7:11)]
+my_col_1 <-  colset_light_qual
 
 png(file = paste0("./results/figs/compare_soms_", nclusters, ".png"), width = 7.5, height = 2.5, res = 400, units = "in", type = "cairo") 
 par(mfrow = c(1, 3), mar = c(2, 2, 2, 2), ps = 12, bg = "white", mgp = c(3, 0.2, 0))

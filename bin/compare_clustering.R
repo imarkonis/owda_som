@@ -1,7 +1,7 @@
 #Explore the classification efficiency
 library(clusterCrit)
-library(graphics)
 source("./source/functions.R")
+source("./source/graphics.R")
 
 load("./results/soms_sp_6x6.Rdata") #created in build maps
 load("./results/soms_sp_10x10.Rdata") #created in build maps
@@ -9,7 +9,6 @@ load("./results/soms_sp_14x14.Rdata") #created in build maps
 load("./data/owda_for_som.rdata")  #created in import_data
 
 x <- som_sp_10x10$codes[[1]]
-
 som_hc <- cutree(hclust(dist(x), method = "ward.D2"), 2)
 cluster_comparison <- as.matrix(intCriteria(x, som_hc, c("all")))
 

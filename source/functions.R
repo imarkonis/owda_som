@@ -19,8 +19,8 @@ put.som.in.time <- function(som_map, start_time){
 }
 
 add.coords.to.som <- function(nodes_in_space){
-  nodes_in_space[, node.lat := mean(lat), by = node]
-  nodes_in_space[, node.lon := mean(lon), by = node]
+  nodes_in_space[, node.lat := median(lat), by = node]
+  nodes_in_space[, node.lon := median(lon), by = node]
   nodes_in_space[, node.sd.lat := sd(lat), by = node]
   nodes_in_space[, node.sd.lon := sd(lon), by = node]
   nodes_in_space[, node.counts := .N, by = node]
@@ -90,7 +90,7 @@ make.classif <- function(nodes_in_map, dataset, nclusters){
   my.som.classifications = list()
   for(i in 1:(nclusters-1)){
     cluster.name = parse(text = paste0("clusters.", i + 1))
-    my.som.classifications[[i]] = my.som[,.(mean(lat), mean(lon), mean(scPDSI), sd(scPDSI)), list(eval(cluster.name), time)] 
+    my.som.classifications[[i]] = my.som[,.(median(lat), median(lon), mean(scPDSI), sd(scPDSI)), list(eval(cluster.name), time)] 
     names(my.som.classifications[[i]]) = c("cluster", "time", "lat", "lon", "m.scPDSI", "sd.scPDSI")
   } 
   return(my.som.classifications)
@@ -126,14 +126,15 @@ get.connections.between.clusters <- function(som.summary, som.clusters.cor.mat, 
   return(connec)
 }
 
+network_palette <- colorRampPalette(c("#BF9A77", "#D6C6B9", "#ACBD78", "#97B8C2"))
 make.classification.summary <- function(selected.som){
   som.cor.mat = make.som.cor.mat(selected.som) 
-  selected.som.summary = selected.som[!duplicated(cluster), .(cluster,lat,lon)]
+  selected.som.summary = selected.som[!duplicated(cluster), .(cluster, lat, lon)]
   no.connected.clusters = get.connections.between.clusters(selected.som.summary, som.cor.mat, 0.5)  
   selected.som.summary = merge(no.connected.clusters, selected.som.summary, by.x = "cluster.1", by.y = "cluster", all.y = T)
   selected.som.summary$N[is.na(selected.som.summary$N)] = 0
   names(selected.som.summary)[1:2] = c("cluster", "connections")
-  selected.som.summary[, cols := colset_mid_qual[nrow(selected.som.summary)][cluster]] 
+  selected.som.summary[, cols := network_palette(nrow(selected.som.summary))[cluster]] 
   return(selected.som.summary)
 }
 

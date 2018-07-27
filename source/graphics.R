@@ -1,16 +1,10 @@
 library(gridExtra); library(ggplot2); library(latticeExtra); library(raster); library(rasterVis)
-library(rgdal); library(ggpubr)
+library(rgdal); library(ggpubr); library(corrplot)
 
 world.shp = maptools::readShapeLines("../owda/ne_50m_admin_0_countries_lakes.shp", proj4string=CRS('+proj=longlat +ellps=WGS84'))
 
 #### Colors
-
-colset_bright <- c("#6a3d9a", "#375E97", "#008DCB", "#31A9B8", 
-                   "#486B00", "#258039", "#A2C523", "#FFCE38", 
-                   "#F0810F", "#FA6775", "#D61800", "#9B4F0F")
-colset_bright_qual <- colset_bright[c(11, 2, 6, 8, 3, 7, 9, 1, 5, 12, 4, 10)]
-palette_bright <- colorRampPalette(colset_bright)
-palette_bright_qual <- colorRampPalette(colset_bright_qual)
+rgb.palette.RdBu = colorRampPalette(rev(c('#d73027','#f46d43','#fdae61','#fee090','#fef0d9','#e0f3f8','#abd9e9','#74add1','#4575b4')), space = "rgb")
 
 colset_mid <- c( "#4D648D", "#337BAE", "#97B8C2",  "#739F3D", "#ACBD78",  
                    "#F4CC70", "#EBB582",  "#BF9A77",
@@ -19,24 +13,17 @@ colset_mid_qual <- colset_mid[c(11, 2, 4, 6,  1, 8, 10, 5, 7, 3, 9, 12)]
 palette_mid <- colorRampPalette(colset_mid)
 palette_mid_qual <- colorRampPalette(colset_mid_qual)
 
+colset_light_qual <- c("#8dd3c7",   "#fdb462", "#bebada", "#fb8072", 
+                       "#80b1d3",  "#b3de69", "#ffed6f","#bc80bd",      
+                       "#d9d9d9",  "#fccde5","#ccebc5", "#a1d6e2")
+palette_light_qual <- colorRampPalette(colset_light_qual)
+
 drought_palette <- colorRampPalette(c('#8c510a','#d8b365','#f6e8c3','#f5f5f5','skyblue1','skyblue3','skyblue4'), 
                                     interpolate = "spline", space = "rgb")
 #### Functions
-
-plot.som.as.network <- function(som.classifications, nclusters, cor.thres){
-  my.som = get.classif(som.classifications, nclusters)
-  som.summary = make.classification.summary(my.som)
-  som.clusters.cor.mat = make.som.cor.mat(my.som)
-  som.cors.above.thres = get.clusters.above.thres(som.summary, som.clusters.cor.mat, cor.thres)
-  plot(lat~lon, data = som.summary, cex = connections + 1, pch = 16, col = cols)
-  maps::map("world", add = TRUE)
-  segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, 
-           som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2)
-}
-
 plot.som.summary <- function(nodes_in_space, fname, ...){
   nnodes = max(nodes_in_space$node)
-  my.col = palette_mid_qual(nnodes)
+  my.col = palette_light_qual(nnodes)
   
   png(file = paste0(fname, "_nodes.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
   plot(lat ~ lon, data = nodes_in_space, pch = 15, col = my.col[node])
@@ -47,20 +34,20 @@ plot.som.summary <- function(nodes_in_space, fname, ...){
   par(mfrow = c(2, 2), 
       mar = c(2, 2, 2, 2), 
       ps = 12, bg = "white", mgp = c(3, 0.2, 0))
-  plot(node.lat ~ node.lon, data = nodes_in_space, cex = 2*distance, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Distance")
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = distance / 1000, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Distance")
   maps::map("world", add = TRUE)
-  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.counts/20, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Counts")
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.counts / 20, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Counts")
   maps::map("world", add = TRUE)
-  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.sd.lat, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Lat sd")
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.sd.lat, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Lat sd")
   maps::map("world", add = TRUE)
-  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.sd.lon, pch= 16, col = my.col[node], xlab = "", ylab = "", main = "Lon sd")
+  plot(node.lat ~ node.lon, data = nodes_in_space, cex = node.sd.lon, pch = 16, col = my.col[node], xlab = "", ylab = "", main = "Lon sd")
   maps::map("world", add = TRUE)
   dev.off()
 }
 
 plot.all.som.clusters <- function(nodes_in_space, fname, nclusters, ...){
   nnodes = max(nodes_in_space$node)
-  my.col = c(colset_mid_qual, colset_bright_qual)
+  my.col = c(colset_light_qual, colset_mid_qual)
   
   png(file = paste0(fname, "_clusters.png"), width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
   par(mfrow = c(4, 4), mar = c(2, 2, 2, 2), ps = 12, bg = "white", mgp = c(3, 0.2, 0))
@@ -74,45 +61,52 @@ plot.all.som.clusters <- function(nodes_in_space, fname, nclusters, ...){
   dev.off()
 }
 
-plot.som.clusters.network <- function(som.classifications, nclusters, cor.thres){
+plot.som.clusters.map <- function(nodes_in_space, som.classifications, nclusters, cor.thres, fname, network = F,...){
+  my.som <- get.classif(som.classifications, nclusters)
+  som.summary <- make.classification.summary(my.som)
+  png(file = fname, width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo", ...) 
+  plot(lat~lon, 
+       data = nodes_in_space, 
+       pch = 15, cex = 1.5,
+       xlab = "", ylab = "",
+       col = som.summary$cols[as.matrix(nodes_in_space)[, 9 + nclusters]])
+  maps::map("world", add=TRUE)
+  if(network == T){
+    som.clusters.cor.mat <- make.som.cor.mat(my.som)
+    som.cors.above.thres <- get.clusters.above.thres(som.summary, som.clusters.cor.mat, cor.thres)
+    all.cors <- get.clusters.above.thres(som.summary, som.clusters.cor.mat, -1)
+    segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2, col = "#D35C37")
+    points(som.summary$lon, som.summary$lat, cex = 3, pch = 16, col = "#D35C37")
+    text(som.summary$lon, som.summary$lat, labels = som.summary$cluster, cex = 0.7, col = "grey90")
+  }
+  dev.off()
+}  
+
+plot.som.as.network <- function(som.classifications, nclusters, cor.thres){
   my.som = get.classif(som.classifications, nclusters)
   som.summary = make.classification.summary(my.som)
   som.clusters.cor.mat = make.som.cor.mat(my.som)
   som.cors.above.thres = get.clusters.above.thres(som.summary, som.clusters.cor.mat, cor.thres)
-  plot(lat~lon, 
-       data = som.summary, 
-       cex = connections+1, 
-       pch = 16, col = cols)
-  maps::map("world", add=TRUE)
-  segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2)
+  plot(lat~lon, data = som.summary, cex = connections + 1, pch = 16, col = cols)
+  maps::map("world", add = TRUE)
+  segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, 
+           som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2)
 }
 
-plot.som.clusters.map <- function(nodes_in_space, som.classifications, nclusters, cor.thres, network = F,...){
-  my.som = get.classif(som.classifications, nclusters)
-  som.summary = make.classification.summary(my.som)
-  plot(lat~lon, 
-       data = nodes_in_space, 
-       pch = 15, 
-       col = som.summary$cols[as.matrix(nodes_in_space)[,9+nclusters]])
-  maps::map("world", add=TRUE)
-  if(network == T){
-    som.clusters.cor.mat = make.som.cor.mat(my.som)
-    som.cors.above.thres = get.clusters.above.thres(som.summary, som.clusters.cor.mat, cor.thres)
-    segments(som.cors.above.thres$lon.x, som.cors.above.thres$lat.x, som.cors.above.thres$lon.y, som.cors.above.thres$lat.y, lwd = 2)
-  }
-}  
-
-plot.som.cluster.cor <- function(som.classifications, nclusters){
+plot.som.cluster.cor <- function(som.classifications, nclusters, fname){
   som.clusters.cor.mat = make.som.cor.mat(get.classif(som.classifications, nclusters)) 
+  png(file = fname, width = 7.5, height = 7.5, res = 400, units = "in", type = "cairo") 
   corrplot(som.clusters.cor.mat, 
-           type="upper", order="AOE", tl.col="black", 
-           tl.pos="upper" , cl.lim=c(-1,1), 
+           type = "upper",  tl.col = "black", 
+           tl.pos = "upper", cl.lim = c(-1, 1), 
            col = rgb.palette.RdBu(200))
-  corrplot(som.clusters.cor.mat, add=TRUE, order="AOE",
-           type="lower", method="number", cl.lim=c(-1,1), 
-           col = rgb.palette.RdBu(200), 
-           diag=FALSE, tl.pos="n" , cl.pos="n")
+  corrplot(som.clusters.cor.mat, add = TRUE, 
+           type = "lower", method = "number", cl.lim = c(-1, 1), 
+           col = rgb.palette.RdBu(200),  number.cex = 1.5,
+           diag = FALSE, tl.pos = "n" , cl.pos = "n")
+  dev.off()
 }
+
 plot.other.years.in.node <- function(nodes.in.time, yr, ...){
   plots = list()
   years.in.node = get.other.years.in.node(nodes.in.time, yr)$time
@@ -158,7 +152,7 @@ plot.soms.in.subperiods <- function(nodes_in_time, fname, clusters){
                data = nodes_in_time[[i]],
                main = paste(names(nodes_in_time)[i], "-", as.numeric(names(nodes_in_time)[i]) + subperiods_diff),
                pch = 15, 
-               col = colset_mid_qual[as.matrix(aa[[i]])]))
+               col = colset_light_qual[as.matrix(aa[[i]])]))
     maps::map("world", add = TRUE)
   }
   dev.off()
