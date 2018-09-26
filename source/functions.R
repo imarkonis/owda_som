@@ -1,4 +1,4 @@
-library(data.table); library(reshape2); library(kohonen)
+library(data.table); library(reshape2); library(kohonen); library(doSNOW); library(foreach)
 
 put.som.in.space <- function(som_map, id_cords){
   som_results <- data.table(id = id_cords$id, 
